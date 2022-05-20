@@ -106,6 +106,10 @@ impl<const LENGTH: usize> ByteView<LENGTH> {
     /// 
     /// This slice will never extend past the end of the byte view, even if the size of view is not a multiple
     /// of the size of the specified type
+    /// 
+    /// # Safety
+    /// This function is unsafe because the alignment is not guaranteed. It also doesn't necessarily include
+    /// all of the bytes in the view
     pub unsafe fn view_as_unchecked<T: Sized>(&self) -> &[T] {
         std::slice::from_raw_parts(self.bytes.as_ptr() as *const T, LENGTH / std::mem::size_of::<T>())
     }
@@ -114,6 +118,10 @@ impl<const LENGTH: usize> ByteView<LENGTH> {
     /// 
     /// This slice will never extend past the end of the byte view, even if the size of view is not a multiple
     /// of the size of the specified type
+    /// 
+    /// # Safety
+    /// This function is unsafe because the alignment is not guaranteed. It also doesn't necessarily include
+    /// all of the bytes in the view
     pub unsafe fn view_as_mut_unchecked<T: Sized>(&mut self) -> &mut [T] {
         std::slice::from_raw_parts_mut(self.bytes.as_ptr() as *mut T, LENGTH / std::mem::size_of::<T>())
     }

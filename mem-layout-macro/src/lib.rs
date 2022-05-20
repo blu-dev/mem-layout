@@ -1,13 +1,12 @@
 mod helpers;
 use helpers::*;
 
-use proc_macro2::Span;
 use quote::{ToTokens, quote};
 use proc_macro::TokenStream;
 
 fn try_get_ta_attr(attribute: &syn::Attribute) -> Option<Helper> {
     match attribute.path.segments.last() {
-        Some(seg) if seg.ident.to_string() == "ta" => {},
+        Some(seg) if seg.ident == "ta" => {},
         _ => return None
     }
 
@@ -22,39 +21,26 @@ pub fn derive_type_assert(item: TokenStream) -> TokenStream {
     let mut size = None;
 
     for attribute in item.attrs.iter() {
-        match try_get_ta_attr(attribute) {
-            Some(Helper::Size(_, expr)) => {
-                size = Some(Helper::Size(Some(item.ident.clone()), expr));
-                break;
-            },
-            _ => {}
+        if let Some(Helper::Size(_, expr)) = try_get_ta_attr(attribute) {
+            size = Some(Helper::Size(Some(item.ident.clone()), expr));
+            break;
         }
     }
 
     let mut offset_checks = Vec::new();
-    let mut fields = Vec::new();
     
     for field in item.fields.iter() {
         for attribute in field.attrs.iter() {
-            match try_get_ta_attr(attribute) {
-                Some(h) => match h {
-                    Helper::Offset(_, _, e) => {
-                        offset_checks.push(Helper::Offset(Some(item.ident.clone()), field.ident.clone(), e));
-                        break;
-                    },
-                    _ => {}
-                },
-                _ => {}
+            if let Some(Helper::Offset(_, _, expr)) = try_get_ta_attr(attribute) {
+                offset_checks.push(Helper::Offset(Some(item.ident.clone()), field.ident.clone(), expr));
+                break;
             }
         }
-        fields.push(HelperOrField::Field(field));
     }
 
     let offset_checks = offset_checks.into_iter();
 
-    if size.is_some() {
-        let size = size.unwrap();
-
+    if let Some(size) = size {
         let size_check_name = quote::format_ident!("{}_size_check", item.ident);
         let offset_check_name = quote::format_ident!("{}_offset_check", item.ident);
 

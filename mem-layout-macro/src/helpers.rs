@@ -9,6 +9,7 @@ mod kw {
     syn::custom_keyword!(off);
 }
 
+#[allow(dead_code)]
 struct AttrItem<Keyword: Parse, Item: Parse> {
     keyword: Keyword,
     item: Item
@@ -26,10 +27,6 @@ impl<Keyword: Parse, Item: Parse> Parse for AttrItem<Keyword, Item> {
     }
 }
 
-pub enum HelperOrField<'a> {
-    Field(&'a syn::Field),
-    Helper(Helper)
-}
 
 pub enum Helper {
     Size(Option<syn::Ident>, syn::Expr),
@@ -145,9 +142,9 @@ impl Parse for Helper {
         let content;
         let _ = parenthesized!(content in input);
         if content.peek(kw::size) {
-            Self::parse_size(ParseStream::from(&content))
+            Self::parse_size(&content)
         } else {
-            Self::parse_offset(ParseStream::from(&content))
+            Self::parse_offset(&content)
         }
     }
 }
