@@ -1,11 +1,15 @@
 
 use std::fmt;
 
+/// The error type for attempting to view an incompatible byte array as a type
 pub enum ByteViewError {
+    // The required alignment of the type does not match that of the byte array
     ImproperAlignment {
         required: usize,
         found: usize
     },
+
+    // The required size of the type is incompatible with that of the byte array
     ImproperSize {
         required: usize,
         found: usize
@@ -25,6 +29,7 @@ impl fmt::Debug for ByteViewError {
     }
 }
 
+/// A fancy byte array that allows viewing it's contents as various types
 #[repr(C)]
 pub struct ByteView<const LENGTH: usize> {
     bytes: [u8; LENGTH]
