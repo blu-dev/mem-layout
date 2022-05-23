@@ -62,7 +62,7 @@ pub fn derive_type_assert(item: TokenStream) -> TokenStream {
     } else {
         let offset_check_name = quote::format_ident!("{}_offset_check", item.ident);
         
-        panic!("{}", quote!(
+        quote!(
             #[allow(non_snake_case)]
             #[test]
             pub fn #offset_check_name() {
@@ -70,6 +70,6 @@ pub fn derive_type_assert(item: TokenStream) -> TokenStream {
                     #offset_checks
                 )*
             }
-        ).to_token_stream().to_string());
+        ).into()
     }
 }
